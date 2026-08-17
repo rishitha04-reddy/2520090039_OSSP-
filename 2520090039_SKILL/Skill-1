@@ -1,1 +1,60 @@
+------------------------------------------------------------
+#include <stdio.h>
 
+int main() {
+    printf("Hello, Linux System Programming!\n");
+    return 0;
+}
+--------------------------------------------------------------
+CC = gcc
+CFLAGS = -Wall -Wextra
+TARGET = bin/main
+
+all: $(TARGET)
+
+$(TARGET): src/main.c
+	$(CC) $(CFLAGS) src/main.c -o $(TARGET)
+
+clean:
+	rm -f $(TARGET)
+-----------------------------------------------------------------
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+
+int main() {
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid < 0) {
+        perror("fork failed");
+        return 1;
+    }
+    else if (pid == 0) {
+        printf("Child process\n");
+        printf("Child PID: %d\n", getpid());
+        printf("Parent PID: %d\n", getppid());
+    }
+    else {
+        printf("Parent process\n");
+        printf("Parent PID: %d\n", getpid());
+        printf("Child PID: %d\n", pid);
+    }
+
+    return 0;
+}
+--------------------------------------------------------------------
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+    printf("Before exec()\n");
+
+    execlp("ls", "ls", "-l", NULL);
+
+    perror("exec failed");
+
+    return 1;
+}
+----------------------------------------------------------------------
