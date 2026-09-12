@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#define FIFO1 "client_to_server"
+#define FIFO2 "server_to_client"
+#define SIZE 100
+int main()
+{
+    int fd1, fd2;
+    char message[SIZE];
+    char response[SIZE];
+    mkfifo(FIFO1, 0666);
+    mkfifo(FIFO2, 0666);
+    printf("Server started...\n");
+    while (1)
+    {
+        // Open client-to-server FIFO for reading
+        fd1 = open(FIFO1, O_RDONLY);
+        read(fd1, message, SIZE);
+        close(fd1);
+        printf("Client message: %s\n", message);
+        if (strcmp(message, "exit") == 0)
+        {
+            printf("Server shutting down...\n");
+            break;
+        }
+        snprintf(response, SIZE, "Server received: %s", message);
+        fd2 = open(FIFO2, O_WRONLY);
+        write(fd2, response, strlen(response) + 1);
+        close(fd2);
+    }
+    unlink(FIFO1);
+    unlink(FIFO2);
+
+    return 0;
+}
