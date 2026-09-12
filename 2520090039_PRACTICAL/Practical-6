@@ -17,7 +17,6 @@ int main()
     printf("Server started...\n");
     while (1)
     {
-        // Open client-to-server FIFO for reading
         fd1 = open(FIFO1, O_RDONLY);
         read(fd1, message, SIZE);
         close(fd1);
@@ -27,7 +26,7 @@ int main()
             printf("Server shutting down...\n");
             break;
         }
-        snprintf(response, SIZE, "Server received: %s", message);
+        snprintf(response, SIZE, "Server received: %.80s", message);
         fd2 = open(FIFO2, O_WRONLY);
         write(fd2, response, strlen(response) + 1);
         close(fd2);
