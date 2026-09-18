@@ -1,0 +1,109 @@
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char input[200];
+    char result[200];
+    int i = 0, j = 0;
+
+    printf("Enter text: ");
+    fgets(input, sizeof(input), stdin);
+
+    while (input[i] != '\0') {
+
+        if (input[i] == '\'') {
+            i++;
+
+            while (input[i] != '\0' && input[i] != '\'') {
+                result[j++] = input[i++];
+            }
+
+            if (input[i] == '\'')
+                i++;
+            else {
+                printf("Error: Unmatched single quote\n");
+                return 1;
+            }
+        } else {
+            result[j++] = input[i++];
+        }
+    }
+
+    result[j] = '\0';
+
+    printf("Parsed result: %s", result);
+
+    return 0;
+}
+
+
+
+  ====================================================================================================
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+    char input[200];
+    char result[200];
+    int i = 0, j = 0;
+
+    printf("Enter text: ");
+    fgets(input, sizeof(input), stdin);
+
+    while (input[i] != '\0') {
+
+        if (input[i] == '"') {
+            i++;
+
+            while (input[i] != '\0' && input[i] != '"') {
+
+                if (input[i] == '$') {
+                    char name[50];
+                    int k = 0;
+
+                    i++;
+
+                    while (input[i] != '\0' &&
+                           (input[i] >= 'A' && input[i] <= 'Z' ||
+                            input[i] >= 'a' && input[i] <= 'z' ||
+                            input[i] >= '0' && input[i] <= '9' ||
+                            input[i] == '_')) {
+                        name[k++] = input[i++];
+                    }
+
+                    name[k] = '\0';
+
+                    char *value = getenv(name);
+
+                    if (value != NULL) {
+                        strcpy(&result[j], value);
+                        j += strlen(value);
+                    }
+
+                } else {
+                    result[j++] = input[i++];
+                }
+            }
+
+            if (input[i] == '"')
+                i++;
+            else {
+                printf("Error: Unmatched double quote\n");
+                return 1;
+            }
+
+        } else {
+            result[j++] = input[i++];
+        }
+    }
+
+    result[j] = '\0';
+
+    printf("Parsed result: %s", result);
+
+    return 0;
+}
