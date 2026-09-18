@@ -1,0 +1,106 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+int main() {
+    char input[200];
+    char token[50];
+    int i = 0, j = 0;
+
+    printf("Enter command: ");
+    fgets(input, sizeof(input), stdin);
+
+    printf("\nTokens:\n");
+
+    while (input[i] != '\0') {
+
+        if (isspace(input[i])) {
+            i++;
+            continue;
+        }
+
+        if (input[i] == '|' || input[i] == ';') {
+            printf("DELIMITER: %c\n", input[i]);
+            i++;
+            continue;
+        }
+
+        j = 0;
+
+        while (input[i] != '\0' &&
+               !isspace(input[i]) &&
+               input[i] != '|' &&
+               input[i] != ';') {
+            token[j++] = input[i++];
+        }
+
+        token[j] = '\0';
+
+        if (j > 0)
+            printf("WORD: %s\n", token);
+    }
+
+    return 0;
+}
+
+
+       ===============================================================================================================================
+
+
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+int main() {
+    char input[200];
+    int i = 0, words = 0;
+
+    printf("Enter command: ");
+    fgets(input, sizeof(input), stdin);
+
+    while (isspace(input[i]))
+        i++;
+
+    if (input[i] == '\0') {
+        printf("Empty command\n");
+        return 0;
+    }
+
+    while (input[i] != '\0') {
+
+        while (isspace(input[i]))
+            i++;
+
+        if (input[i] == '\0')
+            break;
+
+        if (input[i] == '|') {
+            if (words == 0) {
+                printf("Syntax Error: command expected before |\n");
+                return 1;
+            }
+
+            words = 0;
+            i++;
+            continue;
+        }
+
+        while (input[i] != '\0' &&
+               !isspace(input[i]) &&
+               input[i] != '|')
+            i++;
+
+        words++;
+    }
+
+    if (words == 0) {
+        printf("Syntax Error: command expected after |\n");
+        return 1;
+    }
+
+    printf("Syntax Valid\n");
+    printf("Parse Structure: COMMAND -> ARGUMENTS\n");
+
+    return 0;
+}
