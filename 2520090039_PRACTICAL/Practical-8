@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    int *p;
+
+    p = malloc(5 * sizeof(int));
+    printf("malloc completed\n");
+    free(p);
+
+    p = calloc(5, sizeof(int));
+    printf("calloc completed\n");
+
+    p = realloc(p, 10 * sizeof(int));
+    printf("realloc completed\n");
+
+    free(p);
+    printf("free completed\n");
+
+    return 0;
+}
+
+   ========================================================================================================================================
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int data[1000000];
+
+int main()
+{
+    pid_t pid;
+
+    data[0] = 10;
+
+    printf("Before fork: data[0] = %d\n", data[0]);
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        printf("Fork failed\n");
+        return 1;
+    }
+
+    if (pid == 0)
+    {
+        printf("Child before modification: data[0] = %d\n", data[0]);
+
+        data[0] = 20;
+
+        printf("Child after modification: data[0] = %d\n", data[0]);
+
+        exit(0);
+    }
+    else
+    {
+        wait(NULL);
+
+        printf("Parent after child modification: data[0] = %d\n", data[0]);
+    }
+
+    return 0;
+}
