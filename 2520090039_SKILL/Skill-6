@@ -1,0 +1,119 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+void parse_input(char *input)
+{
+    char output[500];
+    int i = 0, j = 0;
+    int escaped = 0;
+
+    while (input[i] != '\0' && j < 499)
+    {
+        if (escaped)
+        {
+            output[j++] = input[i];
+            escaped = 0;
+        }
+        else if (input[i] == '\\')
+        {
+            escaped = 1;
+        }
+        else
+        {
+            output[j++] = input[i];
+        }
+
+        i++;
+    }
+
+    if (escaped)
+    {
+        output[j++] = '\\';
+    }
+
+    output[j] = '\0';
+
+    printf("Original : %s\n", input);
+    printf("Parsed   : %s\n", output);
+}
+
+int main()
+{
+    char input[500];
+
+    printf("Skill-6 Escape Sequence Parser\n");
+    printf("Enter input: ");
+
+    fgets(input, sizeof(input), stdin);
+
+    input[strcspn(input, "\n")] = '\0';
+
+    parse_input(input);
+
+    return 0;
+} 
+
+
+
+ ==================================================================================================
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main(int argc, char *argv[])
+{
+    pid_t pid;
+    int status;
+
+    pid = fork();
+
+    if (pid < 0)
+    {
+        perror("fork failed");
+        return 1;
+    }
+
+    if (pid == 0)
+    {
+        printf("Child Process\n");
+        printf("Child PID: %d\n", getpid());
+
+        if (argc > 1)
+        {
+            printf("Executing command: %s\n", argv[1]);
+
+            execvp(argv[1], &argv[1]);
+
+            perror("execvp failed");
+            exit(1);
+        }
+        else
+        {
+            printf("No command provided.\n");
+            exit(1);
+        }
+    }
+    else
+    {
+        printf("Parent Process\n");
+        printf("Parent PID: %d\n", getpid());
+        printf("Waiting for child process...\n");
+
+        waitpid(pid, &status, 0);
+
+        if (WIFEXITED(status))
+        {
+            printf("Child exited with status: %d\n",
+                   WEXITSTATUS(status));
+        }
+
+        printf("Parent process completed.\n");
+    }
+
+    return 0;
+}
