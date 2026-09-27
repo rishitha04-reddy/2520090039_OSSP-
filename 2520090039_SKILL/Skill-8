@@ -1,0 +1,241 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_INPUT 500
+#define MAX_OUTPUT 1000
+
+void expand_variables(char *input, char *output)
+{
+    int i = 0;
+    int j = 0;
+
+    while (input[i] != '\0' && j < MAX_OUTPUT - 1)
+    {
+        if (input[i] == '$')
+        {
+            i++;
+
+            if (input[i] == '{')
+            {
+                i++;
+
+                char var[100];
+                int k = 0;
+
+                while (input[i] != '\0' &&
+                       input[i] != '}' &&
+                       k < 99)
+                {
+                    var[k++] = input[i++];
+                }
+
+                var[k] = '\0';
+
+                if (input[i] == '}')
+                    i++;
+
+                char *value = getenv(var);
+
+                if (value != NULL)
+                {
+                    for (int x = 0; value[x] != '\0' &&
+                         j < MAX_OUTPUT - 1; x++)
+                    {
+                        output[j++] = value[x];
+                    }
+                }
+            }
+            else
+            {
+                char var[100];
+                int k = 0;
+
+                while (input[i] != '\0' &&
+                       (isalnum((unsigned char)input[i]) ||
+                        input[i] == '_') &&
+                       k < 99)
+                {
+                    var[k++] = input[i++];
+                }
+
+                var[k] = '\0';
+
+                char *value = getenv(var);
+
+                if (value != NULL)
+                {
+                    for (int x = 0; value[x] != '\0' &&
+                         j < MAX_OUTPUT - 1; x++)
+                    {
+                        output[j++] = value[x];
+                    }
+                }
+                else
+                {
+                    output[j++] = '$';
+
+                    for (int x = 0; var[x] != '\0' &&
+                         j < MAX_OUTPUT - 1; x++)
+                    {
+                        output[j++] = var[x];
+                    }
+                }
+            }
+        }
+        else
+        {
+            output[j++] = input[i++];
+        }
+    }
+
+    output[j] = '\0';
+}
+
+int main()
+{
+    char input[MAX_INPUT];
+    char output[MAX_OUTPUT];
+
+    printf("Skill-8 Variable Expansion\n");
+    printf("Enter text: ");
+
+    fgets(input, sizeof(input), stdin);
+
+    input[strcspn(input, "\n")] = '\0';
+
+    expand_variables(input, output);
+
+    printf("Original : %s\n", input);
+    printf("Expanded : %s\n", output);
+
+    return 0;
+}
+
+==============================================================================
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define MAX_INPUT 200
+
+void builtin_cd(char *args[])
+{
+    if (args[1] == NULL)
+    {
+        printf("cd: missing argument\n");
+        return;
+    }
+
+    if (chdir(args[1]) != 0)
+    {
+        perror("cd");
+    }
+}
+
+void builtin_pwd()
+{
+    char cwd[1024];
+
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+        printf("%s\n", cwd);
+    }
+    else
+    {
+        perror("pwd");
+    }
+}
+
+void builtin_echo(char *args[])
+{
+    int i = 1;
+
+    while (args[i] != NULL)
+    {
+        printf("%s", args[i]);
+
+        if (args[i + 1] != NULL)
+            printf(" ");
+
+        i++;
+    }
+
+    printf("\n");
+}
+
+void builtin_help()
+{
+    printf("\nBuilt-in commands:\n");
+    printf("  cd <directory>  - Change directory\n");
+    printf("  pwd             - Show current directory\n");
+    printf("  echo <text>     - Display text\n");
+    printf("  help            - Show help\n");
+    printf("  exit            - Exit shell\n");
+}
+
+int main()
+{
+    char input[MAX_INPUT];
+    char *args[20];
+
+    printf("Skill-8 Built-in Command Dispatcher\n");
+
+    while (1)
+    {
+        printf("skill8$ ");
+        fflush(stdout);
+
+        if (fgets(input, sizeof(input), stdin) == NULL)
+            break;
+
+        input[strcspn(input, "\n")] = '\0';
+
+        if (strlen(input) == 0)
+            continue;
+
+        int argc = 0;
+
+        char *token = strtok(input, " ");
+
+        while (token != NULL && argc < 19)
+        {
+            args[argc++] = token;
+            token = strtok(NULL, " ");
+        }
+
+        args[argc] = NULL;
+
+        if (strcmp(args[0], "exit") == 0)
+        {
+            printf("Exiting Skill-8 shell...\n");
+            break;
+        }
+        else if (strcmp(args[0], "cd") == 0)
+        {
+            builtin_cd(args);
+        }
+        else if (strcmp(args[0], "pwd") == 0)
+        {
+            builtin_pwd();
+        }
+        else if (strcmp(args[0], "echo") == 0)
+        {
+            builtin_echo(args);
+        }
+        else if (strcmp(args[0], "help") == 0)
+        {
+            builtin_help();
+        }
+        else
+        {
+            printf("Invalid command: %s\n", args[0]);
+        }
+    }
+
+    return 0;
+}
